@@ -2,7 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createTodo } from "@/lib/constants";
-import { loadTodos, saveTodos } from "@/lib/storage";
+import { loadTodos } from "@/lib/storage";
+import {
+  deleteCompletedTodos,
+  deleteTodoById,
+  fetchTodos,
+  insertTodo,
+  insertTodos,
+  replaceTodos,
+  rowToTodo,
+  subscribeTodos,
+  updateTodo,
+} from "@/lib/todos";
 
 /**
  * @typedef {import("@/lib/constants").Todo} Todo
@@ -35,15 +46,71 @@ export function useTodos() {
   const [todos, setTodos] = useState([]);
   const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    setTodos(sortByOrder(loadTodos()));
-    setIsReady(true);
+  const refreshTodos = useCallback(async () => {
+    const next = await fetchTodos();
+    setTodos(sortByOrder(next));
   }, []);
 
   useEffect(() => {
-    if (!isReady) return;
-    saveTodos(todos);
-  }, [todos, isReady]);
+    let cancelled = false;
+
+    async function hydrate() {
+      try {
+        let next = await fetchTodos();
+
+        if (next.length === 0) {
+          const localTodos = loadTodos();
+          if (localTodos.length > 0) {
+            await insertTodos(localTodos);
+            next = localTodos;
+          }
+        }
+
+        if (!cancelled) {
+          setTodos(sortByOrder(next));
+        }
+      } catch (error) {
+        console.error("Failed to load todos from Supabase", error);
+        if (!cancelled) {
+          setTodos(sortByOrder(loadTodos()));
+        }
+      } finally {
+        if (!cancelled) setIsReady(true);
+      }
+    }
+
+    void hydrate();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isReady) return undefined;
+
+    return subscribeTodos((payload) => {
+      setTodos((current) => {
+        if (payload.eventType === "INSERT" && payload.new) {
+          const incoming = rowToTodo(payload.new);
+          if (current.some((todo) => todo.id === incoming.id)) return current;
+          return sortByOrder([...current, incoming]);
+        }
+
+        if (payload.eventType === "UPDATE" && payload.new) {
+          const incoming = rowToTodo(payload.new);
+          return sortByOrder(
+            current.map((todo) => (todo.id === incoming.id ? incoming : todo))
+          );
+        }
+
+        if (payload.eventType === "DELETE" && payload.old?.id) {
+          return current.filter((todo) => todo.id !== payload.old.id);
+        }
+
+        return current;
+      });
+    });
+  }, [isReady]);
 
   const addTodo = useCallback(({ text, category, tags, dueDate }) => {
     const trimmed = text.trim();
@@ -58,29 +125,53 @@ export function useTodos() {
     });
 
     setTodos((current) => sortByOrder([...current, next]));
-  }, []);
+    void insertTodo(next).catch((error) => {
+      console.error("Failed to add todo", error);
+      void refreshTodos();
+    });
+  }, [refreshTodos]);
 
   const toggleTodo = useCallback((id) => {
+    let completed = false;
     setTodos((current) =>
-      current.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
+      current.map((todo) => {
+        if (todo.id !== id) return todo;
+        completed = !todo.completed;
+        return { ...todo, completed };
+      })
     );
-  }, []);
+
+    void updateTodo(id, { completed }).catch((error) => {
+      console.error("Failed to toggle todo", error);
+      void refreshTodos();
+    });
+  }, [refreshTodos]);
 
   const deleteTodo = useCallback((id) => {
     setTodos((current) => current.filter((todo) => todo.id !== id));
-  }, []);
+    void deleteTodoById(id).catch((error) => {
+      console.error("Failed to delete todo", error);
+      void refreshTodos();
+    });
+  }, [refreshTodos]);
 
   const editTodo = useCallback((id, updates) => {
     setTodos((current) =>
       current.map((todo) => (todo.id === id ? { ...todo, ...updates } : todo))
     );
-  }, []);
+    void updateTodo(id, updates).catch((error) => {
+      console.error("Failed to edit todo", error);
+      void refreshTodos();
+    });
+  }, [refreshTodos]);
 
   const clearCompleted = useCallback(() => {
     setTodos((current) => current.filter((todo) => !todo.completed));
-  }, []);
+    void deleteCompletedTodos().catch((error) => {
+      console.error("Failed to clear completed todos", error);
+      void refreshTodos();
+    });
+  }, [refreshTodos]);
 
   const reorderTodos = useCallback((activeId, overId) => {
     if (activeId === overId) return;
@@ -95,12 +186,19 @@ export function useTodos() {
       const [moved] = reordered.splice(oldIndex, 1);
       reordered.splice(newIndex, 0, moved);
 
-      return reordered.map((todo, index) => ({
+      const next = reordered.map((todo, index) => ({
         ...todo,
         order: index,
       }));
+
+      void replaceTodos(next).catch((error) => {
+        console.error("Failed to reorder todos", error);
+        void refreshTodos();
+      });
+
+      return next;
     });
-  }, []);
+  }, [refreshTodos]);
 
   const getFilteredTodos = useCallback(
     (filter, category = null) => {

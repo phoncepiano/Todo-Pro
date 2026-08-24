@@ -76,7 +76,7 @@ export default function TodoApp ()
           Todos
         </h1>
         <p className="mt-1 typography-caption text-apple-ink-muted-48">
-          Stay organized with calm motion and local persistence.
+          Stay organized with calm motion and cloud sync.
         </p>
       </motion.header>
 
