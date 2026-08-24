@@ -131,7 +131,7 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
-    router.push("/");
+    router.push("/sign-in");
     router.refresh();
   }, [router]);
 

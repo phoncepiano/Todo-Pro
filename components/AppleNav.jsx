@@ -1,16 +1,14 @@
 "use client";
 
-import Link from "next/link";
-import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/components/AuthProvider";
 import Logo from "./ui/Logo";
-import UserMenu from "./ui/UserMenu";
-import ThemeToggle from "./ui/ThemeToggle";
+import SettingsMenu from "./ui/SettingsMenu";
+import UserAvatar from "./ui/UserAvatar";
 
 export default function AppleNav({ activeTab, setActiveTab }) {
-  const { theme, cycleTheme, isReady } = useTheme();
+  const { isAuthenticated, profile } = useAuth();
   const navLinks = [
-    { id: "overview", label: "Overview" },
-    { id: "todo", label: "Todo App" },
+    { id: "todo", label: "Todo-List" },
   ];
 
   return (
@@ -39,12 +37,8 @@ export default function AppleNav({ activeTab, setActiveTab }) {
                 {link.label}
               </button>
             ))}
-            <UserMenu />
-            {isReady ? (
-              <ThemeToggle theme={theme} onCycle={cycleTheme} />
-            ) : (
-              <div className="h-9 w-9 shrink-0" aria-hidden />
-            )}
+            {isAuthenticated && profile ? <UserAvatar profile={profile} /> : null}
+            <SettingsMenu />
           </div>
         </div>
       </div>

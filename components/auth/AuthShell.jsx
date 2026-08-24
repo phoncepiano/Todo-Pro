@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import SettingsMenu from "@/components/ui/SettingsMenu";
 import SecureOriginNotice from "./SecureOriginNotice";
 
 export default function AuthShell ( { title, subtitle, children } )
@@ -19,6 +20,7 @@ export default function AuthShell ( { title, subtitle, children } )
               <Logo className="h-7 w-7 shrink-0" />
               Todo Pro
             </Link>
+            <SettingsMenu />
           </div>
         </div>
       </header>
