@@ -84,7 +84,7 @@ export default function VerifyEmailPanel() {
         type="button"
         onClick={() => void handleResend()}
         disabled={loading || !email}
-        className="w-full bg-apple-primary text-white typography-body rounded-full px-[22px] py-[11px] apple-active-scale transition-transform focus:outline-none focus:ring-2 focus:ring-apple-primary-focus disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full bg-apple-primary text-white typography-body rounded-full px-5.5 py-2.75 apple-active-scale transition-transform focus:outline-none focus:ring-2 focus:ring-apple-primary-focus disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {loading ? "Sending…" : "Resend verification email"}
       </button>

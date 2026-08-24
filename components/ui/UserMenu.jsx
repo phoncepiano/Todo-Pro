@@ -18,13 +18,13 @@ export default function UserMenu() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="hidden sm:inline typography-button-utility text-apple-ink-muted-80 max-w-[10rem] truncate">
+      <span className="hidden sm:inline typography-button-utility text-apple-ink-muted-80 max-w-40 truncate">
         {displayName}
       </span>
       <button
         type="button"
         onClick={() => void signOut()}
-        className="inline-flex h-9 items-center justify-center rounded-full border border-apple-hairline bg-apple-canvas px-[18px] typography-button-utility leading-none text-apple-ink transition-colors hover:border-apple-primary/30 hover:text-apple-primary apple-active-scale"
+        className="inline-flex h-9 items-center justify-center rounded-full border border-apple-hairline bg-apple-canvas px-4.5 typography-button-utility leading-none text-apple-ink transition-colors hover:border-apple-primary/30 hover:text-apple-primary apple-active-scale"
       >
         Sign Out
       </button>

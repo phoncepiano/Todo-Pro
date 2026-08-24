@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
@@ -26,7 +26,8 @@ const itemVariants = {
   },
 };
 
-function DragHandleIcon() {
+function DragHandleIcon ()
+{
   return (
     <svg viewBox="0 0 16 16" className="h-4 w-4" fill="currentColor" aria-hidden>
       <circle cx="5" cy="4" r="1.2" />
@@ -39,8 +40,9 @@ function DragHandleIcon() {
   );
 }
 
-export function TodoItemDragOverlay({ todo }) {
-  const categoryMeta = getCategoryMeta(todo.category);
+export function TodoItemDragOverlay ( { todo } )
+{
+  const categoryMeta = getCategoryMeta( todo.category );
 
   return (
     <div className="z-10 cursor-grabbing rounded-xl border border-apple-hairline bg-apple-canvas p-4 apple-product-shadow ring-2 ring-apple-primary/30">
@@ -50,35 +52,33 @@ export function TodoItemDragOverlay({ todo }) {
         </span>
 
         <div
-          className={`mt-0.5 h-4 w-4 shrink-0 rounded border ${
-            todo.completed
+          className={ `mt-0.5 h-4 w-4 shrink-0 rounded border ${ todo.completed
               ? "border-apple-primary bg-apple-primary"
               : "border-apple-hairline bg-apple-canvas"
-          }`}
+            }` }
           aria-hidden
         />
 
         <div className="min-w-0 flex-1 text-left">
           <div className="flex flex-wrap items-center gap-2">
             <p
-              className={`text-sm leading-relaxed ${
-                todo.completed
+              className={ `text-sm leading-relaxed ${ todo.completed
                   ? "text-apple-ink-muted-48 line-through decoration-apple-ink-muted-48"
                   : "text-apple-ink"
-              }`}
+                }` }
             >
-              {todo.text}
+              { todo.text }
             </p>
-            <Badge className={categoryMeta.color}>{categoryMeta.label}</Badge>
+            <Badge className={ categoryMeta.color }>{ categoryMeta.label }</Badge>
           </div>
 
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <DueDateLabel dueDate={todo.dueDate} />
-            {todo.tags.map((tag) => (
-              <Badge key={tag} className="bg-apple-divider-soft text-apple-ink-muted-80">
-                #{tag}
+            <DueDateLabel dueDate={ todo.dueDate } />
+            { todo.tags.map( ( tag ) => (
+              <Badge key={ tag } className="bg-apple-divider-soft text-apple-ink-muted-80">
+                #{ tag }
               </Badge>
-            ))}
+            ) ) }
           </div>
         </div>
       </div>
@@ -86,13 +86,14 @@ export function TodoItemDragOverlay({ todo }) {
   );
 }
 
-export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [text, setText] = useState(todo.text);
-  const [category, setCategory] = useState(todo.category);
-  const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
-  const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState(todo.tags);
+export default function TodoItem ( { todo, onToggle, onDelete, onEdit } )
+{
+  const [ isEditing, setIsEditing ] = useState( false );
+  const [ text, setText ] = useState( todo.text );
+  const [ category, setCategory ] = useState( todo.category );
+  const [ dueDate, setDueDate ] = useState( todo.dueDate ?? "" );
+  const [ tagInput, setTagInput ] = useState( "" );
+  const [ tags, setTags ] = useState( todo.tags );
 
   const {
     attributes,
@@ -101,86 +102,89 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: todo.id });
+  } = useSortable( { id: todo.id } );
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Transform.toString( transform ),
     transition: isDragging ? undefined : transition,
     opacity: isDragging ? 0.35 : 1,
   };
 
-  const categoryMeta = getCategoryMeta(todo.category);
+  const categoryMeta = getCategoryMeta( todo.category );
 
-  useEffect(() => {
-    if (!isEditing) {
-      setText(todo.text);
-      setCategory(todo.category);
-      setDueDate(todo.dueDate ?? "");
-      setTags(todo.tags);
-    }
-  }, [todo, isEditing]);
+  const beginEdit = () =>
+  {
+    setText( todo.text );
+    setCategory( todo.category );
+    setDueDate( todo.dueDate ?? "" );
+    setTags( todo.tags );
+    setTagInput( "" );
+    setIsEditing( true );
+  };
 
-  const saveEdit = () => {
+  const saveEdit = () =>
+  {
     const trimmed = text.trim();
-    if (!trimmed) {
-      onDelete(todo.id);
+    if ( !trimmed )
+    {
+      onDelete( todo.id );
       return;
     }
 
-    onEdit(todo.id, {
+    onEdit( todo.id, {
       text: trimmed,
       category,
       dueDate: dueDate || null,
       tags,
-    });
-    setIsEditing(false);
+    } );
+    setIsEditing( false );
   };
 
-  const cancelEdit = () => {
-    setText(todo.text);
-    setCategory(todo.category);
-    setDueDate(todo.dueDate ?? "");
-    setTags(todo.tags);
-    setIsEditing(false);
+  const cancelEdit = () =>
+  {
+    setIsEditing( false );
   };
 
-  const addTag = () => {
-    const value = tagInput.trim().replace(/,$/, "");
-    if (!value || tags.includes(value)) {
-      setTagInput("");
+  const addTag = () =>
+  {
+    const value = tagInput.trim().replace( /,$/, "" );
+    if ( !value || tags.includes( value ) )
+    {
+      setTagInput( "" );
       return;
     }
-    setTags((current) => [...current, value]);
-    setTagInput("");
+    setTags( ( current ) => [ ...current, value ] );
+    setTagInput( "" );
   };
 
-  const removeTag = (tag) => {
-    setTags((current) => current.filter((item) => item !== tag));
+  const removeTag = ( tag ) =>
+  {
+    setTags( ( current ) => current.filter( ( item ) => item !== tag ) );
   };
 
   return (
     <motion.li
-      ref={setNodeRef}
-      style={style}
-      layout={!isDragging}
-      variants={itemVariants}
+      ref={ setNodeRef }
+      style={ style }
+      layout={ !isDragging }
+      variants={ itemVariants }
       initial="hidden"
       animate="show"
       exit="exit"
-      className={`group rounded-xl border border-apple-hairline bg-apple-canvas p-4 transition-all ${
-        isDragging ? "z-10 apple-product-shadow ring-2 ring-apple-primary/30" : "hover:border-apple-primary/30"
-      }`}
+      className={ `group rounded-xl border border-apple-hairline bg-apple-canvas p-4 transition-all ${ isDragging ? "z-10 apple-product-shadow ring-2 ring-apple-primary/30" : "hover:border-apple-primary/30"
+        }` }
     >
-      {isEditing ? (
+      { isEditing ? (
         <div className="space-y-3">
           <TextField
             type="text"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") saveEdit();
-              if (event.key === "Escape") cancelEdit();
-            }}
+            value={ text }
+            onChange={ ( event ) => setText( event.target.value ) }
+            onKeyDown={ ( event ) =>
+            {
+              if ( event.key === "Enter" ) saveEdit();
+              if ( event.key === "Escape" ) cancelEdit();
+            } }
             autoFocus
             aria-label="Edit todo text"
             wrapperClassName="flex w-full"
@@ -189,69 +193,71 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
 
           <div className="flex flex-wrap gap-2">
             <SelectField
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              value={ category }
+              onChange={ ( event ) => setCategory( event.target.value ) }
               aria-label="Edit category"
             >
-              {CATEGORIES.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
+              { CATEGORIES.map( ( item ) => (
+                <option key={ item.value } value={ item.value }>
+                  { item.label }
                 </option>
-              ))}
+              ) ) }
             </SelectField>
 
             <DateInput
-              value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
+              value={ dueDate }
+              onChange={ ( event ) => setDueDate( event.target.value ) }
               aria-label="Edit due date"
             />
 
             <TextField
               type="text"
-              value={tagInput}
-              onChange={(event) => setTagInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === ",") {
+              value={ tagInput }
+              onChange={ ( event ) => setTagInput( event.target.value ) }
+              onKeyDown={ ( event ) =>
+              {
+                if ( event.key === "Enter" || event.key === "," )
+                {
                   event.preventDefault();
                   addTag();
                 }
-              }}
-              onBlur={addTag}
+              } }
+              onBlur={ addTag }
               placeholder="Add tags"
               aria-label="Edit tags"
               wrapperClassName="min-w-30 flex-1"
             />
           </div>
 
-          {tags.length > 0 && (
+          { tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {tags.map((tag) => (
-                <Badge key={tag} className="bg-apple-divider-soft text-apple-ink">
-                  #{tag}
+              { tags.map( ( tag ) => (
+                <Badge key={ tag } className="bg-apple-divider-soft text-apple-ink">
+                  #{ tag }
                   <button
                     type="button"
-                    onClick={() => removeTag(tag)}
-                    aria-label={`Remove tag ${tag}`}
+                    onClick={ () => removeTag( tag ) }
+                    aria-label={ `Remove tag ${ tag }` }
                     className="ml-1 text-apple-ink-muted-48"
                   >
                     ×
                   </button>
                 </Badge>
-              ))}
+              ) ) }
             </div>
-          )}
+          ) }
 
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={saveEdit}
+              onClick={ saveEdit }
               className="rounded-full bg-apple-primary px-4 py-1.5 text-xs font-medium text-white hover:bg-apple-primary-focus apple-active-scale"
             >
               Save
             </button>
             <button
               type="button"
-              onClick={cancelEdit}
+              onClick={ cancelEdit }
               className="rounded-full border border-apple-hairline px-4 py-1.5 text-xs text-apple-ink-muted-80 hover:text-apple-ink apple-active-scale"
             >
               Cancel
@@ -264,50 +270,49 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
             type="button"
             className="mt-0.5 cursor-grab touch-none text-apple-ink-muted-48 hover:text-apple-ink active:cursor-grabbing"
             aria-label="Drag to reorder"
-            {...attributes}
-            {...listeners}
+            { ...attributes }
+            { ...listeners }
           >
             <DragHandleIcon />
           </button>
 
           <Checkbox
-            checked={todo.completed}
-            onChange={() => onToggle(todo.id)}
-            label={todo.completed ? `Mark "${todo.text}" as active` : `Mark "${todo.text}" as completed`}
+            checked={ todo.completed }
+            onChange={ () => onToggle( todo.id ) }
+            label={ todo.completed ? `Mark "${ todo.text }" as active` : `Mark "${ todo.text }" as completed` }
           />
 
           <div
             className="min-w-0 flex-1 text-left"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={ beginEdit }
           >
             <div className="flex flex-wrap items-center gap-2">
               <p
-                className={`text-sm leading-relaxed transition-all duration-200 ${
-                  todo.completed
+                className={ `text-sm leading-relaxed transition-all duration-200 ${ todo.completed
                     ? "text-apple-ink-muted-48 line-through decoration-apple-ink-muted-48"
                     : "text-apple-ink"
-                }`}
+                  }` }
               >
-                {todo.text}
+                { todo.text }
               </p>
-              <Badge className={categoryMeta.color}>{categoryMeta.label}</Badge>
+              <Badge className={ categoryMeta.color }>{ categoryMeta.label }</Badge>
             </div>
 
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <DueDateLabel dueDate={todo.dueDate} />
-              {todo.tags.map((tag) => (
-                <Badge key={tag} className="bg-apple-divider-soft text-apple-ink-muted-80">
-                  #{tag}
+              <DueDateLabel dueDate={ todo.dueDate } />
+              { todo.tags.map( ( tag ) => (
+                <Badge key={ tag } className="bg-apple-divider-soft text-apple-ink-muted-80">
+                  #{ tag }
                 </Badge>
-              ))}
+              ) ) }
             </div>
           </div>
 
           <div className="flex shrink-0 gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
             <button
               type="button"
-              onClick={() => setIsEditing(true)}
-              aria-label={`Edit "${todo.text}"`}
+              onClick={ beginEdit }
+              aria-label={ `Edit "${ todo.text }"` }
               className="rounded-lg p-1.5 text-apple-ink-muted-48 hover:bg-apple-divider-soft hover:text-apple-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apple-primary-focus"
             >
               <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
@@ -317,8 +322,8 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
             </button>
             <button
               type="button"
-              onClick={() => onDelete(todo.id)}
-              aria-label={`Delete "${todo.text}"`}
+              onClick={ () => onDelete( todo.id ) }
+              aria-label={ `Delete "${ todo.text }"` }
               className="rounded-lg p-1.5 text-apple-ink-muted-48 hover:bg-red-500/10 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
               <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
@@ -327,7 +332,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
             </button>
           </div>
         </div>
-      )}
+      ) }
     </motion.li>
   );
 }

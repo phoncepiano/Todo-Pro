@@ -45,6 +45,19 @@ export function useTodos() {
   const { isAuthenticated, isEmailVerified, isLoading: authLoading } = useAuth();
   const [todos, setTodos] = useState([]);
   const [isReady, setIsReady] = useState(false);
+  const canUseTodos = isAuthenticated && isEmailVerified;
+  const [wasEligible, setWasEligible] = useState(false);
+
+  if (!authLoading && canUseTodos && !wasEligible) {
+    setWasEligible(true);
+    setIsReady(false);
+  } else if (!authLoading && !canUseTodos && wasEligible) {
+    setWasEligible(false);
+    setTodos([]);
+    setIsReady(true);
+  } else if (!authLoading && !canUseTodos && !isReady) {
+    setIsReady(true);
+  }
 
   const refreshTodos = useCallback(async () => {
     const next = await fetchTodos();
@@ -52,16 +65,9 @@ export function useTodos() {
   }, []);
 
   useEffect(() => {
-    if (authLoading) return undefined;
-
-    if (!isAuthenticated || !isEmailVerified) {
-      setTodos([]);
-      setIsReady(true);
-      return undefined;
-    }
+    if (authLoading || !canUseTodos) return undefined;
 
     let cancelled = false;
-    setIsReady(false);
 
     async function hydrate() {
       try {
@@ -83,10 +89,10 @@ export function useTodos() {
     return () => {
       cancelled = true;
     };
-  }, [authLoading, isAuthenticated, isEmailVerified]);
+  }, [authLoading, canUseTodos]);
 
   useEffect(() => {
-    if (!isReady || !isAuthenticated || !isEmailVerified) return undefined;
+    if (!isReady || !canUseTodos) return undefined;
 
     return subscribeTodos((payload) => {
       setTodos((current) => {
@@ -110,11 +116,11 @@ export function useTodos() {
         return current;
       });
     });
-  }, [isReady, isAuthenticated, isEmailVerified]);
+  }, [isReady, canUseTodos]);
 
   const addTodo = useCallback(({ text, category, tags, dueDate }) => {
     const trimmed = text.trim();
-    if (!trimmed || !isAuthenticated || !isEmailVerified) return;
+    if (!trimmed || !canUseTodos) return;
 
     const next = createTodo({
       text: trimmed,
@@ -129,10 +135,10 @@ export function useTodos() {
       console.error("Failed to add todo", error);
       void refreshTodos();
     });
-  }, [isAuthenticated, isEmailVerified, refreshTodos]);
+  }, [canUseTodos, refreshTodos]);
 
   const toggleTodo = useCallback((id) => {
-    if (!isAuthenticated || !isEmailVerified) return;
+    if (!canUseTodos) return;
 
     let completed = false;
     setTodos((current) =>
@@ -147,20 +153,20 @@ export function useTodos() {
       console.error("Failed to toggle todo", error);
       void refreshTodos();
     });
-  }, [isAuthenticated, isEmailVerified, refreshTodos]);
+  }, [canUseTodos, refreshTodos]);
 
   const deleteTodo = useCallback((id) => {
-    if (!isAuthenticated || !isEmailVerified) return;
+    if (!canUseTodos) return;
 
     setTodos((current) => current.filter((todo) => todo.id !== id));
     void deleteTodoById(id).catch((error) => {
       console.error("Failed to delete todo", error);
       void refreshTodos();
     });
-  }, [isAuthenticated, isEmailVerified, refreshTodos]);
+  }, [canUseTodos, refreshTodos]);
 
   const editTodo = useCallback((id, updates) => {
-    if (!isAuthenticated || !isEmailVerified) return;
+    if (!canUseTodos) return;
 
     setTodos((current) =>
       current.map((todo) => (todo.id === id ? { ...todo, ...updates } : todo))
@@ -169,20 +175,20 @@ export function useTodos() {
       console.error("Failed to edit todo", error);
       void refreshTodos();
     });
-  }, [isAuthenticated, isEmailVerified, refreshTodos]);
+  }, [canUseTodos, refreshTodos]);
 
   const clearCompleted = useCallback(() => {
-    if (!isAuthenticated || !isEmailVerified) return;
+    if (!canUseTodos) return;
 
     setTodos((current) => current.filter((todo) => !todo.completed));
     void deleteCompletedTodos().catch((error) => {
       console.error("Failed to clear completed todos", error);
       void refreshTodos();
     });
-  }, [isAuthenticated, isEmailVerified, refreshTodos]);
+  }, [canUseTodos, refreshTodos]);
 
   const reorderTodos = useCallback((activeId, overId) => {
-    if (!isAuthenticated || !isEmailVerified || activeId === overId) return;
+    if (!canUseTodos || activeId === overId) return;
 
     setTodos((current) => {
       const sorted = sortByOrder(current);
@@ -206,7 +212,7 @@ export function useTodos() {
 
       return next;
     });
-  }, [isAuthenticated, isEmailVerified, refreshTodos]);
+  }, [canUseTodos, refreshTodos]);
 
   const getFilteredTodos = useCallback(
     (filter, category = null) => {

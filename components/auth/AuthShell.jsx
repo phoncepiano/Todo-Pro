@@ -10,8 +10,8 @@ export default function AuthShell ( { title, subtitle, children } )
     <div className="min-h-screen bg-apple-canvas-parchment text-apple-ink flex flex-col font-sans antialiased">
       <SecureOriginNotice />
       <header className="sticky top-0 z-50 w-full flex flex-col">
-        <div className="h-[52px] w-full bg-apple-canvas-parchment/80 backdrop-blur-md text-apple-ink border-b border-apple-hairline flex items-center justify-center px-4 md:px-8">
-          <div className="w-full max-w-[1024px] flex items-center justify-between h-full">
+        <div className="h-13 w-full bg-apple-canvas-parchment/80 backdrop-blur-md text-apple-ink border-b border-apple-hairline flex items-center justify-center px-4 md:px-8">
+          <div className="w-full max-w-5xl flex items-center justify-between h-full">
             <Link
               href="/"
               className="flex items-center gap-2 typography-tagline font-semibold tracking-tight hover:opacity-80 transition-opacity text-apple-ink"
@@ -24,7 +24,7 @@ export default function AuthShell ( { title, subtitle, children } )
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 md:py-20">
-        <div className="w-full max-w-[440px]">
+        <div className="w-full max-w-110">
           <div className="text-center mb-8">
             <h1 className="typography-display-md text-apple-ink mb-3">{ title }</h1>
             { subtitle ? (

@@ -8,56 +8,60 @@ import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl } from "@/lib/auth";
 import AuthField from "./AuthField";
 
-export default function SignUpForm() {
+export default function SignUpForm ()
+{
   const router = useRouter();
   const { refreshProfile } = useAuth();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [ fullName, setFullName ] = useState( "" );
+  const [ email, setEmail ] = useState( "" );
+  const [ password, setPassword ] = useState( "" );
+  const [ error, setError ] = useState( "" );
+  const [ loading, setLoading ] = useState( false );
 
-  async function handleSubmit(event) {
+  async function handleSubmit ( event )
+  {
     event.preventDefault();
-    setError("");
-    setLoading(true);
+    setError( "" );
+    setLoading( true );
 
     const supabase = createClient();
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp( {
       email,
       password,
       options: {
         data: { full_name: fullName },
         emailRedirectTo: getAuthCallbackUrl(),
       },
-    });
+    } );
 
-    setLoading(false);
+    setLoading( false );
 
-    if (signUpError) {
-      setError(signUpError.message);
+    if ( signUpError )
+    {
+      setError( signUpError.message );
       return;
     }
 
-    if (data.session && data.user?.email_confirmed_at) {
+    if ( data.session && data.user?.email_confirmed_at )
+    {
       await refreshProfile();
-      router.push("/");
+      router.push( "/" );
       router.refresh();
       return;
     }
 
-    router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+    router.push( `/verify-email?email=${ encodeURIComponent( email ) }` );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={ handleSubmit } className="flex flex-col gap-6">
       <AuthField
         id="fullName"
         label="Full name"
         type="text"
         autoComplete="name"
-        value={fullName}
-        onChange={(event) => setFullName(event.target.value)}
+        value={ fullName }
+        onChange={ ( event ) => setFullName( event.target.value ) }
         required
       />
 
@@ -66,8 +70,8 @@ export default function SignUpForm() {
         label="Email"
         type="email"
         autoComplete="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
+        value={ email }
+        onChange={ ( event ) => setEmail( event.target.value ) }
         required
       />
 
@@ -76,28 +80,28 @@ export default function SignUpForm() {
         label="Password"
         type="password"
         autoComplete="new-password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
+        value={ password }
+        onChange={ ( event ) => setPassword( event.target.value ) }
         required
-        minLength={6}
+        minLength={ 6 }
       />
 
-      {error ? (
+      { error ? (
         <p className="typography-caption text-red-600" role="alert">
-          {error}
+          { error }
         </p>
-      ) : null}
+      ) : null }
 
       <button
         type="submit"
-        disabled={loading}
-        className="w-full bg-apple-primary text-white typography-body rounded-full px-[22px] py-[11px] apple-active-scale transition-transform focus:outline-none focus:ring-2 focus:ring-apple-primary-focus disabled:opacity-60 disabled:cursor-not-allowed"
+        disabled={ loading }
+        className="w-full bg-apple-primary text-white typography-body rounded-full px-5.5 py-2.75 apple-active-scale transition-transform focus:outline-none focus:ring-2 focus:ring-apple-primary-focus disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {loading ? "Creating account…" : "Create Account"}
+        { loading ? "Creating account…" : "Create Account" }
       </button>
 
       <p className="typography-body text-center text-apple-ink-muted-80">
-        Already have an account?{" "}
+        Already have an account?{ " " }
         <Link href="/sign-in" className="text-apple-primary hover:underline">
           Sign in
         </Link>

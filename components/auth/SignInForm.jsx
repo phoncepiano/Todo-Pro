@@ -7,61 +7,67 @@ import { useAuth } from "@/components/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import AuthField from "./AuthField";
 
-function isEmailNotConfirmedError(message) {
-  return /email not confirmed/i.test(message);
+function isEmailNotConfirmedError ( message )
+{
+  return /email not confirmed/i.test( message );
 }
 
-export default function SignInForm() {
+export default function SignInForm ()
+{
   const router = useRouter();
   const { refreshProfile } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [ email, setEmail ] = useState( "" );
+  const [ password, setPassword ] = useState( "" );
+  const [ error, setError ] = useState( "" );
+  const [ loading, setLoading ] = useState( false );
 
-  async function handleSubmit(event) {
+  async function handleSubmit ( event )
+  {
     event.preventDefault();
-    setError("");
-    setLoading(true);
+    setError( "" );
+    setLoading( true );
 
     const supabase = createClient();
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword( {
       email,
       password,
-    });
+    } );
 
-    setLoading(false);
+    setLoading( false );
 
-    if (signInError) {
-      if (isEmailNotConfirmedError(signInError.message)) {
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+    if ( signInError )
+    {
+      if ( isEmailNotConfirmedError( signInError.message ) )
+      {
+        router.push( `/verify-email?email=${ encodeURIComponent( email ) }` );
         return;
       }
 
-      setError(signInError.message);
+      setError( signInError.message );
       return;
     }
 
-    if (!data.user?.email_confirmed_at) {
+    if ( !data.user?.email_confirmed_at )
+    {
       await supabase.auth.signOut();
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      router.push( `/verify-email?email=${ encodeURIComponent( email ) }` );
       return;
     }
 
     await refreshProfile();
-    router.push("/");
+    router.push( "/" );
     router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={ handleSubmit } className="flex flex-col gap-6">
       <AuthField
         id="email"
         label="Email"
         type="email"
         autoComplete="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
+        value={ email }
+        onChange={ ( event ) => setEmail( event.target.value ) }
         required
       />
 
@@ -70,28 +76,28 @@ export default function SignInForm() {
         label="Password"
         type="password"
         autoComplete="current-password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
+        value={ password }
+        onChange={ ( event ) => setPassword( event.target.value ) }
         required
-        minLength={6}
+        minLength={ 6 }
       />
 
-      {error ? (
+      { error ? (
         <p className="typography-caption text-red-600" role="alert">
-          {error}
+          { error }
         </p>
-      ) : null}
+      ) : null }
 
       <button
         type="submit"
-        disabled={loading}
-        className="w-full bg-apple-primary text-white typography-body rounded-full px-[22px] py-[11px] apple-active-scale transition-transform focus:outline-none focus:ring-2 focus:ring-apple-primary-focus disabled:opacity-60 disabled:cursor-not-allowed"
+        disabled={ loading }
+        className="w-full bg-apple-primary text-white typography-body rounded-full px-5.5 py-2.75 apple-active-scale transition-transform focus:outline-none focus:ring-2 focus:ring-apple-primary-focus disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {loading ? "Signing in…" : "Sign In"}
+        { loading ? "Signing in…" : "Sign In" }
       </button>
 
       <p className="typography-body text-center text-apple-ink-muted-80">
-        Don&apos;t have an account?{" "}
+        Don&apos;t have an account?{ " " }
         <Link href="/sign-up" className="text-apple-primary hover:underline">
           Create one
         </Link>
