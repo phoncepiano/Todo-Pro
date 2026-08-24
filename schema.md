@@ -90,7 +90,9 @@ Todos are private to the signed-in user who owns them. Anonymous clients cannot 
 
 Email verification is enforced in the proxy (server) and in the client auth layer. Users cannot use the todo app until `auth.users.email_confirmed_at` is set.
 
-Set `SITE_URL` to your canonical app URL (for example `http://localhost:3001` in development). Supabase **Authentication → URL Configuration** must include `{SITE_URL}/auth/callback` in **Redirect URLs**.
+Set `SITE_URL` to your canonical app URL (for example `http://localhost:3001` in development). Supabase **Authentication → URL Configuration** must include `{SITE_URL}/auth/callback` in **Redirect URLs**, and **Site URL** must match `SITE_URL`.
+
+The **Confirm signup** email template should link to `/auth/callback?token_hash={{ .TokenHash }}&type=email` (not the default `{{ .ConfirmationURL }}` PKCE link) so verification works when the email is opened in a different browser or device.
 
 ## App field mapping
 

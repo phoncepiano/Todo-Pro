@@ -41,6 +41,14 @@ SITE_URL=http://localhost:3000
 
 Apply the migrations in `supabase/migrations/` to your project, then add `{SITE_URL}/auth/callback` to **Authentication → URL Configuration → Redirect URLs** in the Supabase dashboard so email confirmation links resolve.
 
+For SSR email verification, update the **Confirm signup** email template in **Authentication → Email Templates** so links use a server-verifiable token instead of PKCE:
+
+```text
+{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email
+```
+
+Set **Authentication → URL Configuration → Site URL** to the same value as `SITE_URL`.
+
 Run the dev server:
 
 ```bash
