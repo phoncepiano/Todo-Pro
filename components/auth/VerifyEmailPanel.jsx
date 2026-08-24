@@ -5,20 +5,21 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
-import { getAuthCallbackUrl } from "@/lib/auth";
+import { getAuthCallbackUrl, getVerificationErrorMessage } from "@/lib/auth";
 
 export default function VerifyEmailPanel() {
   const searchParams = useSearchParams();
   const { signOut } = useAuth();
   const email = searchParams.get("email") ?? "";
   const verified = searchParams.get("verified") === "1";
-  const confirmationError = searchParams.get("error") === "confirmation_failed";
+  const errorCode = searchParams.get("error");
+  const errorDescription = searchParams.get("error_description");
 
   const [message, setMessage] = useState(
     verified
       ? "Your email is verified. You can sign in now."
-      : confirmationError
-        ? "That confirmation link is invalid or has expired. Request a new one below."
+      : errorCode
+        ? getVerificationErrorMessage(errorCode, errorDescription)
         : ""
   );
   const [error, setError] = useState("");

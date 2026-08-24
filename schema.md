@@ -90,6 +90,8 @@ Todos are private to the signed-in user who owns them. Anonymous clients cannot 
 
 Email verification is enforced in the proxy (server) and in the client auth layer. Users cannot use the todo app until `auth.users.email_confirmed_at` is set.
 
+Set `NEXT_PUBLIC_SITE_URL` to your canonical app URL (for example `http://localhost:3001` in development). Supabase **Authentication → URL Configuration** must include `{SITE_URL}/auth/callback` in **Redirect URLs**.
+
 ## App field mapping
 
 `lib/todos.js` maps snake_case columns to the camelCase todo object used in the UI.
