@@ -32,14 +32,14 @@ npm install
 Create `.env.local` with your Supabase project details:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_PUBLISHABLE_KEY=<publishable-key>
+SITE_URL=http://localhost:3000
 ```
 
-`NEXT_PUBLIC_SITE_URL` must match the origin the dev server actually serves on, since PKCE and email links are built from it. If Next.js falls back to another port because 3000 is taken, update this value to match.
+`SITE_URL` must match the origin the dev server actually serves on, since PKCE and email links are built from it. If Next.js falls back to another port because 3000 is taken, update this value to match.
 
-Apply the migrations in `supabase/migrations/` to your project, then add `{NEXT_PUBLIC_SITE_URL}/auth/callback` to **Authentication → URL Configuration → Redirect URLs** in the Supabase dashboard so email confirmation links resolve.
+Apply the migrations in `supabase/migrations/` to your project, then add `{SITE_URL}/auth/callback` to **Authentication → URL Configuration → Redirect URLs** in the Supabase dashboard so email confirmation links resolve.
 
 Run the dev server:
 
