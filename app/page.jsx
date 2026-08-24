@@ -1,13 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/components/AuthProvider";
+import VerifiedBanner from "@/components/auth/VerifiedBanner";
 import AppleNav from "@/components/AppleNav";
 import AppleOverview from "@/components/AppleOverview";
 import TodoApp from "@/components/TodoApp";
 
 export default function Home() {
+  const router = useRouter();
+  const { isAuthenticated, isEmailVerified, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+
+  const handleSetActiveTab = useCallback(
+    (tab) => {
+      if (tab === "todo" && !isLoading) {
+        if (!isAuthenticated) {
+          router.push("/sign-in");
+          return;
+        }
+
+        if (!isEmailVerified) {
+          router.push("/verify-email");
+          return;
+        }
+      }
+
+      setActiveTab(tab);
+    },
+    [isAuthenticated, isEmailVerified, isLoading, router]
+  );
+
+  useEffect(() => {
+    if (!isLoading && activeTab === "todo") {
+      if (!isAuthenticated) {
+        router.push("/sign-in");
+        return;
+      }
+
+      if (!isEmailVerified) {
+        router.push("/verify-email");
+      }
+    }
+  }, [activeTab, isAuthenticated, isEmailVerified, isLoading, router]);
 
   const renderActiveSurface = () => {
     switch (activeTab) {
@@ -19,16 +56,17 @@ export default function Home() {
         );
       case "overview":
       default:
-        return <AppleOverview setActiveTab={setActiveTab} />;
+        return <AppleOverview setActiveTab={handleSetActiveTab} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-apple-canvas text-apple-ink flex flex-col font-sans antialiased">
-      {/* Top Navigation */}
-      <AppleNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Suspense fallback={null}>
+        <VerifiedBanner />
+      </Suspense>
+      <AppleNav activeTab={activeTab} setActiveTab={handleSetActiveTab} />
 
-      {/* Main Content Area */}
       <main className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
@@ -43,10 +81,8 @@ export default function Home() {
         </AnimatePresence>
       </main>
 
-      {/* Apple-style Footer */}
       <footer className="bg-apple-canvas-parchment text-apple-ink-muted-80/80 py-16 px-6 md:px-12 flex flex-col items-center">
         <div className="w-full max-w-[1024px] flex flex-col gap-10">
-          {/* Legal Notes */}
           {activeTab !== "todo" && (
             <div className="border-b border-apple-hairline pb-8 text-left">
               <p className="typography-fine-print text-apple-ink-muted-48 leading-relaxed mb-3">
@@ -58,7 +94,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Bottom Legal Row */}
           <div className="pt-8 text-left w-full">
             <p className="typography-fine-print text-apple-ink-muted-48">
               Copyright © 2026 {"Mr A's Org"}. All rights reserved.

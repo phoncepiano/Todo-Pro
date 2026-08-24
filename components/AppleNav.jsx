@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useTheme } from "@/hooks/useTheme";
 import Logo from "./ui/Logo";
+import UserMenu from "./ui/UserMenu";
 import ThemeToggle from "./ui/ThemeToggle";
 
 export default function AppleNav({ activeTab, setActiveTab }) {
@@ -37,6 +39,7 @@ export default function AppleNav({ activeTab, setActiveTab }) {
                 {link.label}
               </button>
             ))}
+            <UserMenu />
             {isReady ? (
               <ThemeToggle theme={theme} onCycle={cycleTheme} />
             ) : (
